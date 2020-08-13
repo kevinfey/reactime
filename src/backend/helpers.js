@@ -92,7 +92,9 @@ export const getHooksNames = elementType => {
                   hooksNames[varName] = hook.id.name;
                 }
               }
-              statements.push(hook.id.name);
+              if (hook.id.name !== undefined) {
+                statements.push(hook.id.name);
+              }
             }
           });
         }
