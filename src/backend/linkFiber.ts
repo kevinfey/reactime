@@ -38,12 +38,18 @@ import 'core-js';
 // const componentActionsRecord = require('./masterState');
 
 import {
- // eslint-disable-next-line @typescript-eslint/no-unused-vars
- Snapshot, Mode, ComponentData, HookStates, Fiber
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Snapshot,
+  Mode,
+  ComponentData,
+  HookStates,
+  Fiber,
 } from './types/backendTypes';
 import Tree from './tree';
 import componentActionsRecord from './masterState';
 import { throttle, getHooksNames } from './helpers';
+
+import atomNames from './recoilData';
 
 declare global {
   interface Window {
@@ -54,8 +60,12 @@ declare global {
 let doWork = true;
 const circularComponentTable = new Set();
 
+function filterRecoilNode(root) {
+  return root.child.sibling;
+}
+
 // module.exports = (snap, mode) => {
-export default (snap: Snapshot, mode: Mode): ()=>void => {
+export default (snap: Snapshot, mode: Mode): (() => void) => {
   let fiberRoot = null;
 
   function sendSnapshot(): void {
@@ -65,12 +75,17 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     if (!snap.tree) {
       snap.tree = new Tree('root', 'root');
     }
-    const payload = snap.tree.cleanTreeCopy();// snap.tree.getCopy();
-
-    window.postMessage({
-      action: 'recordSnap',
-      payload,
-    }, '*');
+    const payload = snap.tree.cleanTreeCopy(); // snap.tree.getCopy();
+    console.log('payload to send', payload);
+    // console.log('snap tree', snap.tree);
+    // console.log('payload', payload);
+    window.postMessage(
+      {
+        action: 'recordSnap',
+        payload,
+      },
+      '*'
+    );
   }
 
   // Injects instrumentation to update our state tree every time
@@ -78,20 +93,57 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
   function traverseHooks(memoizedState: any): HookStates {
     const hooksStates: HookStates = [];
     while (memoizedState && memoizedState.queue) {
-      if (memoizedState.memoizedState && memoizedState.queue.lastRenderedReducer && memoizedState.queue.lastRenderedReducer.name === 'basicStateReducer') {
+      // console.log('does the wroking app dwadwad')
+      // console.log('here i am', memoizedState);
+      if (
+        memoizedState.memoizedState &&
+        memoizedState.queue.lastRenderedReducer &&
+        memoizedState.queue.lastRenderedReducer.name === 'basicStateReducer'
+      ) {
         hooksStates.push({
           component: memoizedState.queue,
           state: memoizedState.memoizedState,
         });
       }
-      memoizedState = memoizedState.next !== memoizedState
-        ? memoizedState.next : null;
+      memoizedState =
+        memoizedState.next !== memoizedState ? memoizedState.next : null;
     }
+    // console.log('here is hookstate', hooksStates);
+    // console.log('here is memoiizestadwa', memoizedState);
+    // console.log('Kevin request', KevinRequest(memoizedState).memoizedState[1]);
     return hooksStates;
   }
 
+  //RECOIL
+  function traverseRecoilHooks(memoizedState: any): HookStates {
+    const hooksStates: HookStates = [];
+    while (memoizedState && memoizedState.queue) {
+      // console.log('does the wroking app dwadwad')
+      // console.log('here i am', memoizedState);
+      if (
+        memoizedState.memoizedState &&
+        memoizedState.queue.lastRenderedReducer &&
+        memoizedState.queue.lastRenderedReducer.name === 'basicStateReducer'
+      ) {
+        hooksStates.push({
+          component: memoizedState.queue,
+          state: memoizedState.memoizedState,
+        });
+      }
+      memoizedState =
+        memoizedState.next !== memoizedState ? memoizedState.next : null;
+    }
+    // console.log('here is hookstate', hooksStates);
+    // console.log('here is memoiizestadwa', memoizedState);
+    // console.log('Kevin request', KevinRequest(memoizedState).memoizedState[1]);
+    return hooksStates;
+  }
   // This runs after every Fiber commit. It creates a new snapshot
-  function createTree(currentFiber: Fiber, tree: Tree = new Tree('root', 'root'), fromSibling = false) {
+  function createTree(
+    currentFiber: Fiber,
+    tree: Tree = new Tree('root', 'root'),
+    fromSibling = false
+  ) {
     // Base case: child or sibling pointed to null
     if (!currentFiber) return null;
     if (!tree) return tree;
@@ -110,39 +162,111 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       selfBaseDuration,
       treeBaseDuration,
     } = currentFiber;
+    // console.log('current Fiber each time', currentFiber);
+    // console.log('current state Node of all current fiber', stateNode);
 
-    let newState: any | {hooksState?: any[]} = {};
+    let newState: any | { hooksState?: any[] } = {};
     let componentData: {
-      hooksState?: any[],
-      hooksIndex?: number,
-      index?: number,
-      actualDuration?: number,
-      actualStartTime?: number,
-      selfBaseDuration?: number,
-      treeBaseDuration?: number} = {};
+      hooksState?: any[];
+      hooksIndex?: number;
+      index?: number;
+      actualDuration?: number;
+      actualStartTime?: number;
+      selfBaseDuration?: number;
+      treeBaseDuration?: number;
+    } = {};
     let componentFound = false;
 
+    //MEMOIZED STATE
+
+    /// RECOIL
+    let recoilApp = false;
+    if (window[`$recoilDebugStates`]) {
+      recoilApp = true;
+    }
+
+    if (recoilApp === true) {
+      let hooksIndex;
+      // console.log('here is memoized state and tag in createTree', memoizedState, tag);
+      if (
+        memoizedState &&
+        (tag === 0 || tag === 1 || tag === 2 || tag === 10)
+      ) {
+        if (memoizedState.queue) {
+          console.log('MEMOIZED STATE', currentFiber);
+          console.log('S')
+          // Hooks states are stored as a linked list using memoizedState.next,
+          // so we must traverse through the list and get the states.
+          // We then store them along with the corresponding memoizedState.queue,
+          // which includes the dispatch() function we use to change their state.
+          // console.log('memomized state', memoizedState);
+          const hooksStates = [{state:"100", component:
+          'hello'}];
+          // debugger
+          const hooksNames = getHooksNames(elementType.toString());
+          // console.log('get hook States', hooksStates);
+          // console.log('get hook name', hooksNames);
+          hooksStates.forEach((state, i) => {
+            // console.log('state and i', state, i);
+            hooksIndex = componentActionsRecord.saveNew(
+              state.state,
+              state.component
+            );
+            componentData.hooksIndex = hooksIndex;
+            if (newState && newState.hooksState) {
+              newState.hooksState.push({ [hooksNames[i]]: state.state });
+            } else if (newState) {
+              newState.hooksState = [{ [hooksNames[i]]: state.state }];
+            } else {
+              newState = { hooksState: [] };
+              newState.hooksState.push({ [hooksNames[i]]: state.state });
+            }
+            componentFound = true;
+          });
+        }
+      }
+    }
+
+    // console.log('state node', stateNode, tag);
     // Check if node is a stateful setState component
     if (stateNode && stateNode.state && (tag === 0 || tag === 1 || tag === 2)) {
       // Save component's state and setState() function to our record for future
       // time-travel state changing. Add record index to snapshot so we can retrieve.
-      componentData.index = componentActionsRecord.saveNew(stateNode.state, stateNode);
+      componentData.index = componentActionsRecord.saveNew(
+        stateNode.state,
+        stateNode
+      );
       newState = stateNode.state;
       componentFound = true;
     }
+    // console.log('memomized state', memoizedState);
 
     // Check if node is a hooks useState function
     let hooksIndex;
-    if (memoizedState && (tag === 0 || tag === 1 || tag === 2 || tag === 10)) {
+    // console.log('here is memoized state and tag in createTree', memoizedState, tag);
+    if (
+      memoizedState &&
+      recoilApp === false &&
+      (tag === 0 || tag === 1 || tag === 2 || tag === 10)
+    ) {
       if (memoizedState.queue) {
+        console.log('MEMOIZED STATE', currentFiber);
         // Hooks states are stored as a linked list using memoizedState.next,
         // so we must traverse through the list and get the states.
         // We then store them along with the corresponding memoizedState.queue,
         // which includes the dispatch() function we use to change their state.
+        // console.log('memomized state', memoizedState);
         const hooksStates = traverseHooks(memoizedState);
+        // debugger
         const hooksNames = getHooksNames(elementType.toString());
+        console.log('get hook States', hooksStates);
+        console.log('get hook name', hooksNames);
         hooksStates.forEach((state, i) => {
-          hooksIndex = componentActionsRecord.saveNew(state.state, state.component);
+          // console.log('state and i', state, i);
+          hooksIndex = componentActionsRecord.saveNew(
+            state.state,
+            state.component
+          );
           componentData.hooksIndex = hooksIndex;
           if (newState && newState.hooksState) {
             newState.hooksState.push({ [hooksNames[i]]: state.state });
@@ -158,7 +282,7 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     }
 
     // This grabs stateless components
-
+    // console.log('check if component Found is true', componentFound);
     if (!componentFound && (tag === 0 || tag === 1 || tag === 2)) {
       newState = 'stateless';
     }
@@ -172,23 +296,37 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       treeBaseDuration,
     };
 
+    // console.log('componentData', componentData);
+
     let newNode = null;
     // We want to add this fiber node to the snapshot
+    // console.log(currentFiber);
+    // console.log('adding this fiber node to snapshot', componentFound, newState);
     if (componentFound || newState === 'stateless') {
       if (fromSibling) {
-        newNode = tree.addSibling(newState,
+        newNode = tree.addSibling(
+          newState,
           elementType ? elementType.name : 'nameless',
-          componentData);
+          componentData
+        );
       } else {
-        newNode = tree.addChild(newState,
+        newNode = tree.addChild(
+          newState,
           elementType ? elementType.name : 'nameless',
-          componentData);
+          componentData
+        );
       }
     } else {
       newNode = tree;
     }
 
+    // debugger
+    // console.log('child', child);
+    // console.log('sibling', sibling);
+    // console.log(circularComponentTable);
+    // console.log('------');
     // Recurse on children
+    // debugger;
     if (child && !circularComponentTable.has(child)) {
       // If this node had state we appended to the children array,
       // so attach children to the newly appended child.
@@ -202,14 +340,21 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       createTree(sibling, newNode, true);
     }
 
+    // console.log('this is a tree', tree);
     return tree;
   }
 
   function updateSnapShotTree(): void {
     if (fiberRoot) {
+      // console.log('do have fiber root');
       const { current } = fiberRoot;
+      // console.log(current);
+      // console.log('before chearling circularComponentTable', circularComponentTable);
       circularComponentTable.clear();
+      // console.log('check circularComponentTable', circularComponentTable);
+      // console.log('creating a tre....')
       snap.tree = createTree(current);
+      // console.log('after creating a tree, snap is', snap);
     }
     sendSnapshot();
   }
@@ -219,7 +364,7 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
   }
 
   return () => {
-/*     const container = document.getElementById('root');
+    /*     const container = document.getElementById('root');
     if (container._internalRoot) {
       fiberRoot = container._internalRoot;
     } else {
@@ -232,25 +377,47 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     }
  */
     const devTools = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+    // console.log('here is devTools', devTools);
     const reactInstance = devTools ? devTools.renderers.get(1) : null;
+
     fiberRoot = devTools.getFiberRoots(1).values().next().value;
 
-    const throttledUpdateSnapshot = throttle(updateSnapShotTree, 70);
-    document.addEventListener('visibilitychange', onVisibilityChange);
+    if (window[`$recoilDebugStates`] === undefined) {
+      console.log('this is not a recoil app');
+    } else {
+      console.log('this is a recoil app');
+    }
 
+    // console.log(filterRecoilNode(fiberRoot));
+    console.log('fiber root', fiberRoot);
+    // console.log('application start: Todolist()', fiberRoot.current.child.child.child.sibling);
+    // fiberRoot = fiberRoot.current.child.child.child.sibling;
+    // fiberRoot = fiberRoot.current.child.child.child.sibling;
+    // let recoilRoot = fiberRoot.current.child;
+    // console.log('get recoil root', recoilRoot);
+    // console.log('get hook anme', getHooksNames(recoilRoot.elementType));
+    // console.log('here is recoil debug states', window[`$recoilDebugStates`]);
+    // console.log('get Batcher', recoilRoot.elementType(1));
+    const throttledUpdateSnapshot = throttle(updateSnapShotTree, 70); // why 70ms?
+    document.addEventListener('visibilitychange', onVisibilityChange); // what is this? if the user
+    // how did u stop?
+
+    // console.log('reactInstance ha', reactInstance);
     if (reactInstance && reactInstance.version) {
       devTools.onCommitFiberRoot = (function (original) {
+        // console.log('I am fiberroot', fiberRoot);
         return function (...args) {
           // eslint-disable-next-line prefer-destructuring
           fiberRoot = args[1];
           if (doWork) {
+            // console.log('enter doWork');
             throttledUpdateSnapshot();
           }
           return original(...args);
         };
-      }(devTools.onCommitFiberRoot));
+      })(devTools.onCommitFiberRoot);
     }
-
+    // console.log('about to throttle and update snapshot')
     throttledUpdateSnapshot();
   };
 };
