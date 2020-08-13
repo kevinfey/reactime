@@ -49,7 +49,7 @@ import Tree from './tree';
 import componentActionsRecord from './masterState';
 import { throttle, getHooksNames } from './helpers';
 
-import atomNames from './recoilData';
+import { atomNames, lastState, currentAtom } from './recoilData';
 
 declare global {
   interface Window {
@@ -138,6 +138,7 @@ export default (snap: Snapshot, mode: Mode): (() => void) => {
     // console.log('Kevin request', KevinRequest(memoizedState).memoizedState[1]);
     return hooksStates;
   }
+
   // This runs after every Fiber commit. It creates a new snapshot
   function createTree(
     currentFiber: Fiber,
@@ -186,22 +187,26 @@ export default (snap: Snapshot, mode: Mode): (() => void) => {
     }
 
     if (recoilApp === true) {
+      console.log('ATOMS', atomNames);
+      console.log('LAST STATE', lastState);
+      console.log('CURRENT ATOM', currentAtom);
+
       let hooksIndex;
+
       // console.log('here is memoized state and tag in createTree', memoizedState, tag);
       if (
         memoizedState &&
         (tag === 0 || tag === 1 || tag === 2 || tag === 10)
       ) {
         if (memoizedState.queue) {
-          console.log('MEMOIZED STATE', currentFiber);
-          console.log('S')
+          //console.log('MEMOIZED STATE', currentFiber);
+
           // Hooks states are stored as a linked list using memoizedState.next,
           // so we must traverse through the list and get the states.
           // We then store them along with the corresponding memoizedState.queue,
           // which includes the dispatch() function we use to change their state.
           // console.log('memomized state', memoizedState);
-          const hooksStates = [{state:"100", component:
-          'hello'}];
+          const hooksStates = traverseHooks(memoizedState);
           // debugger
           const hooksNames = getHooksNames(elementType.toString());
           // console.log('get hook States', hooksStates);
