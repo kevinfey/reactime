@@ -7,7 +7,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const Map = (props) => {
+
+const DiffMap = (props) => {
   let { snapshot } = props;
   console.log('MAP SNAPSHOT', snapshot);
 
@@ -202,4 +203,4 @@ const Map = (props) => {
   );
 };
 
-export default Map;
+export default DiffMap;
