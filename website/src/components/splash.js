@@ -24,12 +24,14 @@ const StyledDiv = styled.div`
   padding: 0px 1.0875rem 1.45rem;
   padding-top: 0;
   line-height: 1.2rem;
+  
 `
 
 const StyledMain = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-size: 1.15em;
 `
 
 const Layout = ({ children }) => {

@@ -82,13 +82,12 @@ const IndexPage = () => (
         >
           <b> Download Now</b>
         </a>{' '}
-        to get started debugging your applicaiton.
+        to get started debugging your application.
       </p>
 
       <p
         style={{
           fontFamily: 'Raleway',
-          fontSize: '16px',
           color: styles.lighterGreen,
           textAlign: 'center',
           marginBottom: '18px'
