@@ -16,6 +16,10 @@ import styled from "styled-components"
 
 const StyledImage = styled(Img)`
   min-width: 300px;
+  max-width: 600px;
+  @media only screen and (min-width: 700px) {
+    margin-right: 50px;
+  }
 `
 
 const Image = () => {

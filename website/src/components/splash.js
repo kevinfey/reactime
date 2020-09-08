@@ -15,23 +15,21 @@ import "./layout.css"
 
 // Background-color LOGO
 const StyledWrapper = styled.div`
-  
 `
 
 const StyledDiv = styled.div`
   margin: 0 auto;
-  max-width: 750px;
+  max-width: 1024px;
+  height: 100vh;
+  @media only screen and (max-width: 700px) {
+    height: 90vh;
+  }
+  display: flex;
+  align-items: center;
   padding: 0px 1.0875rem 1.45rem;
   padding-top: 0;
   line-height: 1.2rem;
   
-`
-
-const StyledMain = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 1.15em;
 `
 
 const Layout = ({ children }) => {
@@ -49,8 +47,13 @@ const Layout = ({ children }) => {
     <>
       <StyledWrapper>
         <Header siteTitle={data.site.siteMetadata.title} />
-        <StyledDiv>
-          <StyledMain>{children}</StyledMain>
+        <StyledDiv
+          data-sal="fade"
+          data-sal-delay="100"
+          data-sal-duration="1200"
+          data-sal-easing="ease-out"
+        >
+          {children}
         </StyledDiv>
       </StyledWrapper>
     </>

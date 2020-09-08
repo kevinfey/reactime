@@ -11,6 +11,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import ZoomInGridElement from './zoomInGridElement';
 // import { useStaticQuery, graphql } from "gatsby"
 import styled from 'styled-components';
 
@@ -24,7 +25,11 @@ const styles = {
   iconBColor: '#242529' // feature icon bg #E4C2B3
 };
 
-const StyledWrapper = styled.div``;
+const StyledWrapper = styled.div`
+  @media only screen and (max-height: 570px) {
+    margin-top: 100px;
+  }
+`;
 
 const StyledDiv = styled.div`
   margin: 0 auto;
@@ -53,6 +58,7 @@ const StyledGridElement = styled.div`
   align-items: center;
   justify-content: center;
   background: ${styles.iconBColor};
+  padding: 20px;
   width: 395px;
   height: 120px;
   margin: 20px 10px 0px 10px;
@@ -81,7 +87,6 @@ const StyledGridElement = styled.div`
     font-weight: 400;
   }
 `;
-
 const Layout = ({ children }) => (
   <>
     <StyledWrapper>
@@ -89,69 +94,85 @@ const Layout = ({ children }) => (
         <StyledMain>
           {children}
           <Grid>
-            <StyledGridElement className="feaStyle">
-              <h4>Time Travel Tree Display</h4>
-              <p>See your application state values on each change.</p>
-            </StyledGridElement>
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Time Travel Tree Display</h4>
+                <p>See your application state values on each change.</p>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>Time Travel Live Render</h4>
-              <p>See your application DOM follow each state change.</p>
-            </StyledGridElement>
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Time Travel Live Render</h4>
+                <p>See your application DOM follow each state change.</p>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>State History Graphic</h4>
-              <p>
-                See your application history branch from old state.
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>State History Graphic</h4>
+                <p>
+                  See your application history branch from old state.
               </p>
-            </StyledGridElement>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>Components Map</h4>
-              <p>Vizualise the relationship between components.</p>
-            </StyledGridElement>
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Components Map</h4>
+                <p>Vizualise the relationship between components.</p>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>Atom and Selector Data Flow</h4>
-              <p>
-                Vizualise the data flow from atoms to selectors to components.
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Atom and Selector Data Flow</h4>
+                <p>
+                  Vizualise the data flow from atoms to selectors to components.
               </p>
-            </StyledGridElement>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>Components Performance Graphic</h4>
-              <p>
-                Vizualise your application and render time of components on
-                state change.
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Components Performance Graphic</h4>
+                <p>
+                  Vizualise your application and render time of components on
+                  state change.
               </p>
-            </StyledGridElement>
+              </StyledGridElement>
+            </ZoomInGridElement>
 
-            <StyledGridElement className="feaStyle">
-              <h4>Import and Export and Persit</h4>
-              <p>
-                Save your state history for future tests. Keep your state
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Import and Export and Persit</h4>
+                <p>
+                  Save your state history for future tests. Keep your state
                 changes on app reload.{' '}
-              </p>
-            </StyledGridElement>
-            <StyledGridElement className="feaStyle">
-              <h4>Try Reactime With Our Demos</h4>
-              <p>
-                <a
-                  style={{ textDecoration: 'none', color: '#99A93A' }}
-                  href="https://joshua0308.github.io/calculator/"
-                >
-                  Calculator
+                </p>
+              </StyledGridElement>
+            </ZoomInGridElement>
+            <ZoomInGridElement className="feaStyle">
+              <StyledGridElement>
+                <h4>Try Reactime With Our Demos</h4>
+                <p>
+                  <a
+                    style={{ textDecoration: 'none', color: '#99A93A' }}
+                    href="https://joshua0308.github.io/calculator/"
+                  >
+                    Calculator
                 </a>{' '}
                 &amp;{' '}
-                <a
-                  style={{ textDecoration: 'none', color: '#99A93A' }}
-                  href="http://reactime-demo2.us-east-1.elasticbeanstalk.com/"
-                >
-                  Bitcoin Price
+                  <a
+                    style={{ textDecoration: 'none', color: '#99A93A' }}
+                    href="http://reactime-demo2.us-east-1.elasticbeanstalk.com/"
+                  >
+                    Bitcoin Price
                 </a>
                 .
               </p>
-            </StyledGridElement>
+              </StyledGridElement>
+            </ZoomInGridElement>
           </Grid>
           <h4
             style={{

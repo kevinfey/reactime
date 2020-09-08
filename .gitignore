@@ -12,3 +12,5 @@ src/extension/build.pem
 bower_components
 sandboxes/manual-tests/NextJS/.next
 .vscode
+website/.cache
+website/public
